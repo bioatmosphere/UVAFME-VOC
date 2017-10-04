@@ -1,2 +1,2 @@
 # UVAFME-VOC(v1.0) Documentation
-THIS FILE IS GONNA BE A FULL
+This is gonna be a full documentation of the model UVAFME-VOC that we deveoped in 2017 (Ecological Modelling Wang, Shugart, Lerdau, 2017)
