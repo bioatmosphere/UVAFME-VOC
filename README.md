@@ -13,3 +13,5 @@ We will deposit the source code written in Fortran (a Python-based version that 
 **Wang, B.**, Shuman, J., Shugart, H. H., & Lerdau, M. T. (2018). Biodiversity matters in feedbacks between climate change and air quality: a study using an individual‐based model. Ecological Applications.https://doi.org/10.1002/eap.1721
 
 Shugart, H. H., **Wang, B.**, Fischer, R., Ma, J., Fang, J., Yan, X., ... & Armstrong, A. H. (2018). Gap models and their individual-based relatives in the assessment of the consequences of global change. Environmental Research Letters, 13, 033001.https://doi.org/10.1088/1748-9326/aaaacc
+
+Wang, B., Shugart, H.H. & Lerdau, M.T. Complexities between plants and the atmosphere. Nat. Geosci. 12, 693–694 (2019) doi:10.1038/s41561-019-0413-8
