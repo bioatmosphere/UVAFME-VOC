@@ -1,0 +1,47 @@
+&uvafme
+! variables that can be changed
+!incr/decr variables are total change, and both should be positive
+!incr_tmin_by=4
+!incr_tmax_by=4
+!incr_prec_by
+!decr_tmin_by
+!decr_tmax_by
+!decr_prec_by
+!incr_or_decr=
+
+spinup=.true.
+spinup_yrs=100
+year_print_interval=10
+fixed_seed=.true.
+debug=.false.
+
+numyears=500
+numplots=200
+plotsize=500
+rootdepth=0.8
+maxheight=70
+maxtrees=1000
+
+!with clim change = use GCM data or linear CC in temp or precip, true or false
+!use GCM = use outside GCM scenario data, true or false
+!begin change year = how long to spin up model before changing climate
+!start GCM = year of GCM data to start with
+!duration of change = how long to run GCM or CC data
+with_clim_change=.false.
+use_gcm=.false.
+begin_change_year=500
+start_gcm=0
+duration_of_change=0
+tree_level_data=.false.
+plot_level_data=.false.
+/
+
+&sitevals
+! means not changed
+!new_slope=
+!fire_level=
+!wind_level=
+!SA_field_cap=
+!AO_level_C=
+!AO_level_N=
+/
