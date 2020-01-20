@@ -12,9 +12,9 @@ program UVAFE
   use GenusGroups
   use Model
 
-!:............................................................................:
+  !:............................................................................:
 
-  integer               :: sndx, year! site and year loop indexes
+  integer               :: sndx, year ! site and year loop indexes
   real                  :: start_time,total_time
 
   character(len=80)     :: filelist
@@ -43,9 +43,9 @@ program UVAFE
 
   end interface
 
-!:............................................................................:
+  !:............................................................................:
 
-! Fortran 2003
+  ! Fortran 2003
   nargs = command_argument_count()
   if (nargs .ne. 1) then
     filelist=''
@@ -53,24 +53,24 @@ program UVAFE
     call get_command_argument(1,filelist)
   endif
 
-! Prepare input files
+  ! Prepare input files
   call initialize_inputFiles(filelist)
 
-! Prepare site and species data
+  ! Prepare site and species data
   call initialize_sitelist(sites,species_present)
 
-! Prepare output files
+  ! Prepare output files
   call initialize_outputFiles(species_present)
 
-! write runtime vars to screen
+  ! write runtime vars to screen
   call drawBanner(size(sites),species_present)
 
-! Start timing
+  ! Start timing
   call cpu_time(start_time)
 
   do sndx = 1, numsites
 
-  ! make sure the site exists
+     ! make sure the site exists
      if ( sites(sndx)%site_wmo == rnvalid ) then
           write(*,*) '             No site or climate file for site ',         &
                                    sites(sndx)%site_id
@@ -79,11 +79,11 @@ program UVAFE
           cycle
      endif
 
-  ! load climate and site specific vars, then adjust for altitude if requested
+     ! load climate and site specific vars, then adjust for altitude if requested
      call set_site_rng_seed(fixed_seed)
      call set_site_climate(same_climate,fixed_seed)
 
-  ! skip this site if no species are present
+     ! skip this site if no species are present
      if ( size(sites(sndx)%species) .eq. 0 )  then
           write(*,*) '              No species present in site ',              &
                                     sites(sndx)%site_id
@@ -93,8 +93,7 @@ program UVAFE
      endif
      call showProgress(sites(sndx))
 
-  ! run the model
-
+     ! run the model
      do year = 0, numyears
         
         call BioGeoClimate(sites(sndx),year)
@@ -130,7 +129,7 @@ program UVAFE
      call cpu_time(total_time)
      write(*,*) 'Cumulative time :',total_time-start_time
      write(*,'(a80)') &
-'=============================================================================='
+     '=============================================================================='
 
   end do
 
@@ -141,25 +140,26 @@ end program UVAFE
 !:............................................................................:
 
   subroutine drawBanner(numsites,species_present)
-  use Parameters
-  use Genusgroups
-  implicit none
+  
+    use Parameters
+    use Genusgroups
+    implicit none
 
-  type(Groups), intent(in)       ::  species_present
-  integer,      intent(in)       ::  numsites
+    type(Groups), intent(in)       ::  species_present
+    integer,      intent(in)       ::  numsites
 
     write(*,500) &
-'=============================================================================='
+    '=============================================================================='
     write(*,500) &
-'                       UVA Forest Model Enhanced                              '
+    '                       UVA Forest Model Enhanced                              '
     write(*,500) &
-'               Center For Regional Environmental Studies                      '
+    '               Center For Regional Environmental Studies                      '
     write(*,500) &
-'                        University of Virginia                                '
+    '                        University of Virginia                                '
     write(*,500) &
-'                   Department of Environmental Sciences                       '
+    '                   Department of Environmental Sciences                       '
     write(*,500) &
-'=============================================================================='
+    '=============================================================================='
 
     write(*,*) 'Running with parameters:'
     write(*,400) 'Number of sites:',numsites
@@ -192,24 +192,24 @@ end program UVAFE
 
     write(*,400) 'Printing interval in years:',year_print_interval
     write(*,500) &
-'=============================================================================='
+    '=============================================================================='
     write(*,*)
 
 
-400 format(a30,i10)
-401 format(a30,f10.3)
-402 format(a30,a)
-500 format(a80)
+    400 format(a30,i10)
+    401 format(a30,f10.3)
+    402 format(a30,a)
+    500 format(a80)
 
   end subroutine drawbanner
 
 
   subroutine showProgress(asite)
-  use Parameters
-  use Site
-  implicit none
-  type(SiteData), intent(in)     ::  asite
-  integer                        ::  num_site_species
+    use Parameters
+    use Site
+    implicit none
+    type(SiteData), intent(in)     ::  asite
+    integer                        ::  num_site_species
 
     num_site_species=size(asite%species)
     write(*,500) 'Running for site ', asite%site_id,asite%site_name
@@ -221,9 +221,9 @@ end program UVAFE
                  asite%fire_prob,asite%wind_prob,                              &
                  asite%soil%A_field_cap,asite%soil%A0_c0,asite%soil%A0_n0
 
-500 format(14x,a,i10,4x,a)
-501 format(14x,a,i8)
-502 format(7x,'Site parameters: elevation ',f8.2,'   slope     ',f6.2,/        &
+    500 format(14x,a,i10,4x,a)
+    501 format(14x,a,i8)
+    502 format(7x,'Site parameters: elevation ',f8.2,'   slope     ',f6.2,/    &
                23x,' fire/1000   ' f6.2,'   wind/1000 ',f6.2, /                &
                23x,' SAFC*rtdpth ',f6.2,'   A0_C      ',f6.2,'  A0_N ',f6.2)
 
