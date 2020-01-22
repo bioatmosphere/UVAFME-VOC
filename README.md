@@ -5,11 +5,12 @@ UVAFME-VOC (v1.0) is written in Fortran90 (a Python-based version that would mak
 
 **Run UVAFME-VOC**
 
-- Get the code
+- Get the code/repo
 
 ```shell
 git clone https://github.com/bioatmosphere/UVAFME-VOC
 ```
+Understand the file structure
 
 - Compile and Run the Program
 
