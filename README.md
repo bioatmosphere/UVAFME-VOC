@@ -5,12 +5,20 @@ UVAFME-VOC (v1.0) is written in Fortran90 (a Python-based version that would mak
 
 **Run UVAFME-VOC**
 
-- Compile the program
+- Get the code
+
+```shell
+git clone https://github.com/bioatmosphere/UVAFME-VOC
+```
+
+- Compile and Run the Program
 
 Navigate to the src/ folder and run the command from a shell:
 
 ```shell
 Make UVAFME
+mv UVAFME.exe ..
+./UVAFME.exe file_list
 ```
 
 ------------------------------------------------------------------------------------------------------------------------------------------
