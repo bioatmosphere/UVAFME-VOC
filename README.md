@@ -5,7 +5,7 @@ UVAFME-VOC (v1.0) is written in Fortran90 (a Python-based version that would mak
 
 ## Run UVAFME-VOC
 
-- Compile the source code
+- 1. Compile the source code
 
 ------------------------------------------------------------------------------------------------------------------------------------------
 **Publications arising from this model**
