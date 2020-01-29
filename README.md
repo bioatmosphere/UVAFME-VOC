@@ -3,7 +3,7 @@ Individual-based forest volatile organic compounds emission model, UVAFME-VOC(v1
 
 UVAFME-VOC (v1.0) is written in Fortran90 (a Python-based version that would make it more widely accessible is under conceiving). Any questions related to the explicit VOC simulation in particular and the individual-based forest model in general can  be directed to B. Wang @ wbwenwen@gmail.com or bw8my@virginia.edu
 
-**Run UVAFME-VOC**
+### Run UVAFME-VOC
 
 - 1.Get the code/repo
 
@@ -31,7 +31,7 @@ mv UVAFME.exe ..
 ```
 
 ------------------------------------------------------------------------------------------------------------------------------------------
-**Publications arising from this model**
+### Publications arising from this model
 
 **Wang, B.**, Shugart, H. H., & Lerdau, M. T. (2017). An individual-based model of forest volatile organic compound emissions—UVAFME-VOC v1. 0. **Ecological Modelling**, 350, 69-78.https://doi.org/10.1016/j.ecolmodel.2017.02.006
 
