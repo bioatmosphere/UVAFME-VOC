@@ -16,7 +16,7 @@ UVAFME-VOC (v1.0) is written in Fortran90 (a Python-based version that would mak
 ```shell
 git clone https://github.com/bioatmosphere/UVAFME-VOC
 ```
-Understand the directory structure:
+**Understand the directory structure**:
 
 - **src/**: all source code in .f90 and a Makefile
 
