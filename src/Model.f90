@@ -186,29 +186,25 @@ contains
          total_rsp = total_rsp+C_resp
 
          !computing degday, growing season length(growdays),dry day, &flood days
-         !Origional code below are modified by B.Wang on Aug.21st, 2017
-         
          if (daytemp(j) .ge. min_grow_temp) then
            degday=degday+(daytemp(j)- min_grow_temp)
            growdays=growdays+1.0
-           if ((saw0_ScaledByFC .lt. max_dry_parm)  .and.                     &
-               (sbw0_ScaledByMin .lt. max_dry_parm) .and.                     &
-               (sbw0_ScaledByMax .lt. max_dry_parm)) then
-              drydays_upper=drydays_upper+1.0
-           endif
-           if (saw0_ScaledByWP.lt. max_dry_parm) then
-             drydays_base=drydays_base+1.0
-           endif
-            ! POSSIBLE BUG -- yxd3 never set
-           if (aow0_ScaledByMin .gt. min_flood_parm) then
-              flooddays = flooddays + kron(yxd3)
-           endif
+         end if
+         if ((saw0_ScaledByFC .lt. max_dry_parm)  .and.                     &
+            (sbw0_ScaledByMin .lt. max_dry_parm) .and.                     &
+            (sbw0_ScaledByMax .lt. max_dry_parm)) then
+            drydays_upper=drydays_upper+1.0
+         endif
+         if (saw0_ScaledByWP.lt. max_dry_parm) then
+            drydays_base=drydays_base+1.0
+         endif
+         ! POSSIBLE BUG -- yxd3 never set
+         if (aow0_ScaledByMin .gt. min_flood_parm) then
+            flooddays = flooddays + kron(yxd3)
          endif
 
       end do
-
       !print*, 'degday',degday
-
 
       if ( growdays .eq. 0 ) then
          drydays_upper=0
