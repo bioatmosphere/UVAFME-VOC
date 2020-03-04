@@ -70,206 +70,206 @@ module csv_file
     end interface
 contains
 
-! csv_next_record --
-!     Go to the next record (convenience routine)
-! Arguments:
-!     lun        LU-number of the CSV-file
-! Result:
-!     The current record is closed, the next write will be to the
-!     new record
-! Note:
-!     This is a convenience routine, it may result in a superfluous
-!     comma at the end of the previous record. This does not seem to
-!     be problematic, though, for MS Excel
-!
-subroutine csv_next_record( lun )
-    integer, intent(in)   :: lun
-
-    write(lun,'(a)') ''
-end subroutine csv_next_record
-
-! csv_write_integer/real/dble --
-!     Write a single integer/real/double precision real to the CSV-file
-! Arguments:
-!     lun        LU-number of the CSV-file
-!     value      Value to write
-!     advance    Advance (.true.) or not, so that more items can be
-!                written to the same record
-! Result:
-!     The value is written to the current record of the CSV-file
-!
-subroutine csv_write_integer( lun, value, advance )
-    integer, intent(in)   :: lun
-    integer, intent(in)   :: value
-    logical, intent(in)   :: advance
-
-    character(len=40)     :: buffer
-    write( buffer, '(I10)' ) value
-    buffer = adjustl(buffer)
-    if ( advance ) then
-       write(lun,'(a)') trim(buffer)
-    else
-       ! Most probably: write the comma only when needed
-       ! - depends on other actions
-       write(lun,'(a,a)',advance='no') trim(buffer), ','
-    endif
-end subroutine csv_write_integer
-
-subroutine csv_write_real( lun, value, advance )
-    integer, intent(in)   :: lun
-    real, intent(in)      :: value
-    logical, intent(in)   :: advance
-
-    character(len=40)     :: buffer
-    write( buffer, '(G14.6)' ) value
-    buffer = adjustl(buffer)
-    if ( advance ) then
-       write(lun,'(a)') trim(buffer)
-    else
-       ! Most probably: write the comma only when needed
-       ! - depends on other actions
-       write(lun,'(a,a)',advance='no') trim(buffer), ','
-    endif
-end subroutine csv_write_real
-
-subroutine csv_write_dble( lun, value, advance )
-    integer, intent(in)                    :: lun
-    real(kind=kind(1.0d0)), intent(in)     :: value
-    logical, intent(in)                    :: advance
-
-    character(len=40)     :: buffer
-    write( buffer, '(G20.12)' ) value
-    buffer = adjustl(buffer)
-    if ( advance ) then
-       write(lun,'(a)') trim(buffer)
-    else
-       ! Most probably: write the comma only when needed
-       ! - depends on other actions
-       write(lun,'(a,a)',advance='no') trim(buffer), ','
-    endif
-end subroutine csv_write_dble
-
-! csv_write_char --
-!     Write a single character string to the CSV-file
-! Arguments:
-!     lun        LU-number of the CSV-file
-!     value      Value to write
-!     advance    Advance (.true.) or not, so that more items can be
-!                written to the same record
-! Result:
-!     The value is written to the current record of the CSV-file
-!
-subroutine csv_write_char( lun, value, advance )
-    integer, intent(in)            :: lun
-    character(len=*), intent(in)   :: value
-    logical, intent(in)            :: advance
-
-    integer                        :: k
-    integer                        :: pos
-    integer                        :: posb
-    character(len=2*len(value))    :: buffer
-
-    buffer = value
-
+    ! csv_next_record --
+    !     Go to the next record (convenience routine)
+    ! Arguments:
+    !     lun        LU-number of the CSV-file
+    ! Result:
+    !     The current record is closed, the next write will be to the
+    !     new record
+    ! Note:
+    !     This is a convenience routine, it may result in a superfluous
+    !     comma at the end of the previous record. This does not seem to
+    !     be problematic, though, for MS Excel
     !
-    ! Check for nasty characters (")
+    subroutine csv_next_record( lun )
+        integer, intent(in)   :: lun
+
+        write(lun,'(a)') ''
+    end subroutine csv_next_record
+
+    ! csv_write_integer/real/dble --
+    !     Write a single integer/real/double precision real to the CSV-file
+    ! Arguments:
+    !     lun        LU-number of the CSV-file
+    !     value      Value to write
+    !     advance    Advance (.true.) or not, so that more items can be
+    !                written to the same record
+    ! Result:
+    !     The value is written to the current record of the CSV-file
     !
-    k    = index( value,'"')
-    pos  = 1
-    posb = 1
-    do while ( k .ge. 1 )
-        buffer(posb:)   = value(pos:)
-        buffer(posb+k:) = '"' // value(pos+k:)
-        pos             = pos  + k + 1
-        posb            = posb + k + 2
-        k               = index( value(pos:),'"')
-    enddo
+    subroutine csv_write_integer( lun, value, advance )
+        integer, intent(in)   :: lun
+        integer, intent(in)   :: value
+        logical, intent(in)   :: advance
 
-    if ( advance ) then
-       write(lun,'(a)') trim(buffer)
-    else
-       write(lun,'(a,a)',advance='no') trim(buffer), ','
-    endif
-end subroutine csv_write_char
+        character(len=40)     :: buffer
+        write( buffer, '(I10)' ) value
+        buffer = adjustl(buffer)
+        if ( advance ) then
+        write(lun,'(a)') trim(buffer)
+        else
+        ! Most probably: write the comma only when needed
+        ! - depends on other actions
+        write(lun,'(a,a)',advance='no') trim(buffer), ','
+        endif
+    end subroutine csv_write_integer
 
-! csv_write_integer/real/dble_1d --
-!     Write a one-dimensional array of items to the CSV-file
-! Arguments:
-!     lun        LU-number of the CSV-file
-!     array      Array to write
-!     advance    Advance (.true.) or not, so that more items can be
-!                written to the same record
-! Result:
-!     The array is written to the current record of the CSV-file
-! Note:
-!     Because the four routines of this type differ only in
-!     the data type, we use an include file for the body.
-!
-subroutine csv_write_integer_1d( lun, array, advance )
-    integer, dimension(:), intent(in)   :: array
+    subroutine csv_write_real( lun, value, advance )
+        integer, intent(in)   :: lun
+        real, intent(in)      :: value
+        logical, intent(in)   :: advance
 
-    include 'csv_file_1d.f90'
+        character(len=40)     :: buffer
+        write( buffer, '(G14.6)' ) value
+        buffer = adjustl(buffer)
+        if ( advance ) then
+        write(lun,'(a)') trim(buffer)
+        else
+        ! Most probably: write the comma only when needed
+        ! - depends on other actions
+        write(lun,'(a,a)',advance='no') trim(buffer), ','
+        endif
+    end subroutine csv_write_real
 
-end subroutine csv_write_integer_1d
+    subroutine csv_write_dble( lun, value, advance )
+        integer, intent(in)                    :: lun
+        real(kind=kind(1.0d0)), intent(in)     :: value
+        logical, intent(in)                    :: advance
 
-subroutine csv_write_real_1d( lun, array, advance )
-    real, dimension(:), intent(in)   :: array
+        character(len=40)     :: buffer
+        write( buffer, '(G20.12)' ) value
+        buffer = adjustl(buffer)
+        if ( advance ) then
+        write(lun,'(a)') trim(buffer)
+        else
+        ! Most probably: write the comma only when needed
+        ! - depends on other actions
+        write(lun,'(a,a)',advance='no') trim(buffer), ','
+        endif
+    end subroutine csv_write_dble
 
-    include 'csv_file_1d.f90'
+    ! csv_write_char --
+    !     Write a single character string to the CSV-file
+    ! Arguments:
+    !     lun        LU-number of the CSV-file
+    !     value      Value to write
+    !     advance    Advance (.true.) or not, so that more items can be
+    !                written to the same record
+    ! Result:
+    !     The value is written to the current record of the CSV-file
+    !
+    subroutine csv_write_char( lun, value, advance )
+        integer, intent(in)            :: lun
+        character(len=*), intent(in)   :: value
+        logical, intent(in)            :: advance
 
-end subroutine csv_write_real_1d
+        integer                        :: k
+        integer                        :: pos
+        integer                        :: posb
+        character(len=2*len(value))    :: buffer
 
-subroutine csv_write_dble_1d( lun, array, advance )
-    real(kind=kind(1.0d0)), dimension(:), intent(in)   :: array
+        buffer = value
 
-    include 'csv_file_1d.f90'
+        !
+        ! Check for nasty characters (")
+        !
+        k    = index( value,'"')
+        pos  = 1
+        posb = 1
+        do while ( k .ge. 1 )
+            buffer(posb:)   = value(pos:)
+            buffer(posb+k:) = '"' // value(pos+k:)
+            pos             = pos  + k + 1
+            posb            = posb + k + 2
+            k               = index( value(pos:),'"')
+        enddo
 
-end subroutine csv_write_dble_1d
+        if ( advance ) then
+        write(lun,'(a)') trim(buffer)
+        else
+        write(lun,'(a,a)',advance='no') trim(buffer), ','
+        endif
+    end subroutine csv_write_char
 
-subroutine csv_write_char_1d( lun, array, advance )
-    character(len=*), dimension(:), intent(in)   :: array
+    ! csv_write_integer/real/dble_1d --
+    !     Write a one-dimensional array of items to the CSV-file
+    ! Arguments:
+    !     lun        LU-number of the CSV-file
+    !     array      Array to write
+    !     advance    Advance (.true.) or not, so that more items can be
+    !                written to the same record
+    ! Result:
+    !     The array is written to the current record of the CSV-file
+    ! Note:
+    !     Because the four routines of this type differ only in
+    !     the data type, we use an include file for the body.
+    !
+    subroutine csv_write_integer_1d( lun, array, advance )
+        integer, dimension(:), intent(in)   :: array
 
-    include 'csv_file_1d.f90'
+        include 'csv_file_1d.f90'
 
-end subroutine csv_write_char_1d
+    end subroutine csv_write_integer_1d
 
-! csv_write_integer/real/dble_2d --
-!     Write a two-dimensional array of items to the CSV-file
-! Arguments:
-!     lun        LU-number of the CSV-file
-!     array      Array to write
-! Result:
-!     The array is written to the current record of the CSV-file
-! Note:
-!     Because the four routines of this type differ only in
-!     the data type, we use an include file for the body.
-!
-subroutine csv_write_integer_2d( lun, array )
-    integer, dimension(:,:), intent(in)   :: array
+    subroutine csv_write_real_1d( lun, array, advance )
+        real, dimension(:), intent(in)   :: array
 
-    include 'csv_file_2d.f90'
+        include 'csv_file_1d.f90'
 
-end subroutine csv_write_integer_2d
+    end subroutine csv_write_real_1d
 
-subroutine csv_write_real_2d( lun, array )
-    real, dimension(:,:), intent(in)   :: array
+    subroutine csv_write_dble_1d( lun, array, advance )
+        real(kind=kind(1.0d0)), dimension(:), intent(in)   :: array
 
-    include 'csv_file_2d.f90'
+        include 'csv_file_1d.f90'
 
-end subroutine csv_write_real_2d
+    end subroutine csv_write_dble_1d
 
-subroutine csv_write_dble_2d( lun, array )
-    real(kind=kind(1.0d0)), dimension(:,:), intent(in)   :: array
+    subroutine csv_write_char_1d( lun, array, advance )
+        character(len=*), dimension(:), intent(in)   :: array
 
-    include 'csv_file_2d.f90'
+        include 'csv_file_1d.f90'
 
-end subroutine csv_write_dble_2d
+    end subroutine csv_write_char_1d
 
-subroutine csv_write_char_2d( lun, array )
-    character(len=*), dimension(:,:), intent(in)   :: array
+    ! csv_write_integer/real/dble_2d --
+    !     Write a two-dimensional array of items to the CSV-file
+    ! Arguments:
+    !     lun        LU-number of the CSV-file
+    !     array      Array to write
+    ! Result:
+    !     The array is written to the current record of the CSV-file
+    ! Note:
+    !     Because the four routines of this type differ only in
+    !     the data type, we use an include file for the body.
+    !
+    subroutine csv_write_integer_2d( lun, array )
+        integer, dimension(:,:), intent(in)   :: array
 
-    include 'csv_file_2d.f90'
+        include 'csv_file_2d.f90'
 
-end subroutine csv_write_char_2d
+    end subroutine csv_write_integer_2d
+
+    subroutine csv_write_real_2d( lun, array )
+        real, dimension(:,:), intent(in)   :: array
+
+        include 'csv_file_2d.f90'
+
+    end subroutine csv_write_real_2d
+
+    subroutine csv_write_dble_2d( lun, array )
+        real(kind=kind(1.0d0)), dimension(:,:), intent(in)   :: array
+
+        include 'csv_file_2d.f90'
+
+    end subroutine csv_write_dble_2d
+
+    subroutine csv_write_char_2d( lun, array )
+        character(len=*), dimension(:,:), intent(in)   :: array
+
+        include 'csv_file_2d.f90'
+
+    end subroutine csv_write_char_2d
 
 end module csv_file

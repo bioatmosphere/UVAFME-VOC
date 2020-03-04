@@ -79,7 +79,7 @@ program UVAFE
           cycle
      endif
 
-     ! load climate and site specific vars, then adjust for altitude if requested
+     ! load climate and site specific vars,then adjust for altitude if requested
      call set_site_rng_seed(fixed_seed)
      call set_site_climate(same_climate,fixed_seed)
 

@@ -57,6 +57,7 @@ contains
           sites(sx)%leaf_area_ind   = 1.0
 
        endif
+       
     end do
 
     ! Read altitude list

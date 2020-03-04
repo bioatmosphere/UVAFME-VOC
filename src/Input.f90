@@ -54,11 +54,11 @@ contains
     plot_level_data   = .false.
     tree_level_data   = .false.
     adjust_for_elev   = .false.
-    same_climate=.true.
-    fixed_seed=.false.
-    use_gcm=.false.
-    start_gcm=0
-    end_gcm=100
+    same_climate = .true.
+    fixed_seed   = .false.
+    use_gcm      = .false.
+    start_gcm = 0
+    end_gcm   = 100
 
     numyears=1000
     numplots=200
@@ -115,9 +115,9 @@ contains
                 write(*,*) "Assuming decrease intended"
                 decr_precip_by=-decr_precip_by
              endif
-             tmin_change=-decr_tmin_by/(duration_of_change+1)
-             tmax_change=-decr_tmax_by/(duration_of_change+1)
-             precip_change=-decr_precip_by/(duration_of_change+1)
+             tmin_change   = -decr_tmin_by/(duration_of_change+1)
+             tmax_change   = -decr_tmax_by/(duration_of_change+1)
+             precip_change = -decr_precip_by/(duration_of_change+1)
           endif
        else
           linear_cc=.false.

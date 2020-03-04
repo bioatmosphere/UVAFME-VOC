@@ -22,223 +22,223 @@ contains
 
    subroutine BioGeoClimate(site,year)
 
-         integer,                         intent(in)    :: year
-         type(SiteData),                  intent(inout) :: site
+      integer,                         intent(in)    :: year
+      type(SiteData),                  intent(inout) :: site
 
-         integer                        :: wmo
-         integer                        :: gcm_year
-         integer                        :: num_species
+      integer                        :: wmo
+      integer                        :: gcm_year
+      integer                        :: num_species
 
-         real, dimension(NTEMPS)        :: t1, t2, p1
-         real, dimension(NTEMPS)        :: tmptmin, tmptmax, tmpprec
-         real, dimension(days_per_year) :: daytemp, daytemp_min, daytemp_max
-         real, dimension(days_per_year) :: daynums, dayprecip
+      real, dimension(NTEMPS)        :: t1, t2, p1
+      real, dimension(NTEMPS)        :: tmptmin, tmptmax, tmpprec
+      real, dimension(days_per_year) :: daytemp, daytemp_min, daytemp_max
+      real, dimension(days_per_year) :: daynums, dayprecip
 
-         real                   :: litter_c_lev1,litter_c_lev2
-         real                   :: litter_n_lev1,litter_n_lev2
-         real                   :: rain,rain_n,freeze
-         real                   :: temp_f,prcp_f
-         real                   :: total_rsp,avail_n,n_avail,C_resp,pet,aet
-         real                   :: growdays,drydays_upper,drydays_base
-         real                   :: flooddays,degday
-         real                   :: outwater
-         real                   :: exrad,daylength,exradmx
-         real                   :: pot_ev_day
-         real                   :: act_ev_day
-         real                   :: laiw0_ScaledByMax,laiw0_ScaledByMin
-         real                   :: aow0_ScaledByMax,aow0_ScaledByMin
-         real                   :: sbw0_ScaledByMax,sbw0_ScaledByMin
-         real                   :: saw0_ScaledByFC,saw0_ScaledByWP
-         ! KAH -- POSSIBLE BUG
-         real                   :: yxd3   !used but never set
-         ! used to temporarily hold accumulated climate variables
-         real                   :: tmpstep1,tmpstep2
-         real                   :: tmp
-         integer                :: i,j,k,m
+      real                   :: litter_c_lev1,litter_c_lev2
+      real                   :: litter_n_lev1,litter_n_lev2
+      real                   :: rain,rain_n,freeze
+      real                   :: temp_f,prcp_f
+      real                   :: total_rsp,avail_n,n_avail,C_resp,pet,aet
+      real                   :: growdays,drydays_upper,drydays_base
+      real                   :: flooddays,degday
+      real                   :: outwater
+      real                   :: exrad,daylength,exradmx
+      real                   :: pot_ev_day
+      real                   :: act_ev_day
+      real                   :: laiw0_ScaledByMax,laiw0_ScaledByMin
+      real                   :: aow0_ScaledByMax,aow0_ScaledByMin
+      real                   :: sbw0_ScaledByMax,sbw0_ScaledByMin
+      real                   :: saw0_ScaledByFC,saw0_ScaledByWP
+      ! KAH -- POSSIBLE BUG
+      real                   :: yxd3   !used but never set
+      ! used to temporarily hold accumulated climate variables
+      real                   :: tmpstep1,tmpstep2
+      real                   :: tmp
+      integer                :: i,j,k,m
 
-         real, parameter        :: min_grow_temp =5.0
-         real, parameter        :: max_dry_parm  =1.0001
-         real, parameter        :: min_flood_parm=0.9999
+      real, parameter        :: min_grow_temp =5.0
+      real, parameter        :: max_dry_parm  =1.0001
+      real, parameter        :: min_flood_parm=0.9999
 
-         save   
+      save   
 
-         wmo=site%site_id
-         num_species=size(site%species)
+      wmo=site%site_id
+      num_species=size(site%species)
 
-         rain  =0.0
-         rain_n=0.0
+      rain  =0.0
+      rain_n=0.0
 
-         ! The user is expected to input decr_by values as positive.
+      ! The user is expected to input decr_by values as positive.
+
+      if ( linear_cc ) then
+         if (year .ge. begin_change_year .AND. year .le.                         &
+            (begin_change_year + duration_of_change)) then
+            accumulated_tmin = accumulated_tmin + tmin_change
+            accumulated_tmax = accumulated_tmax + tmax_change
+            do m=1,12
+               tmpstep1 = site%precip(m) + accumulated_precip(m)
+               tmpstep2 = tmpstep1 * precip_change
+               accumulated_precip(m) = accumulated_precip(m) + tmpstep2
+            end do
+         endif
+
+      else if ( use_gcm ) then
+         gcm_year=start_gcm+year-begin_change_year
+         if ( gcm_year .ge. start_gcm .and. gcm_year .le. end_gcm ) then
+            call read_gcm_climate(gcm_year,start_gcm,site)
+         endif
+      endif
+
+      do i=1,NTEMPS
 
          if ( linear_cc ) then
-            if (year .ge. begin_change_year .AND. year .le.                         &
-               (begin_change_year + duration_of_change)) then
-               accumulated_tmin = accumulated_tmin + tmin_change
-               accumulated_tmax = accumulated_tmax + tmax_change
-               do m=1,12
-                  tmpstep1 = site%precip(m) + accumulated_precip(m)
-                  tmpstep2 = tmpstep1 * precip_change
-                  accumulated_precip(m) = accumulated_precip(m) + tmpstep2
-               end do
-            endif
-
-         else if ( use_gcm ) then
-            gcm_year=start_gcm+year-begin_change_year
-            if ( gcm_year .ge. start_gcm .and. gcm_year .le. end_gcm ) then
-               call read_gcm_climate(gcm_year,start_gcm,site)
-            endif
-         endif
-
-         do i=1,NTEMPS
-
-            if ( linear_cc ) then
-               tmptmin(i) = site%tmin(i)   + accumulated_tmin
-               tmptmax(i) = site%tmax(i)   + accumulated_tmax
-               tmpprec(i) = site%precip(i) + accumulated_precip(i)
-            else
-               tmptmin(i) = site%tmin(i) 
-               tmptmax(i) = site%tmax(i) 
-               tmpprec(i) = site%precip(i) 
-            endif
-
-            ! Climate fluctuations
-            temp_f=clim_nrand(0.0,1.0)
-            prcp_f=clim_nrand(0.0,1.0)
-            temp_f=max(-1.0,min(temp_f,1.0))
-
-            !--------------------------------------------------------------
-            !-!!!!!!!!!!!!!!!Note this part-!!!!!!!!!!!!!!!!!!!!!1
-            !--------------------------------------------------------------
-            ! KAH Both these can't operate. The second one overwrites the first one.
-            ! This doesn't add on fluctuations that are scaled to the std.
-            t1(i)=tmptmin(i)+temp_f*site%tmin_std(i)
-            t2(i)=tmptmax(i)+temp_f*site%tmax_std(i)
-            !t1(i)=tmptmin(i)+temp_f
-            !t2(i)=tmptmax(i)+temp_f
-
-            !forest cover can increase rainfall by maximum 15%
-            prcp_f=max(-0.5,min(prcp_f,0.5))
-
-            p1(i)=max(tmpprec(i)+prcp_f*site%precip_std(i),0.0)
-            rain  =rain  +p1(i)
-            rain_n=rain_n+p1(i)*prcp_n
-
-            if ( with_clim_change ) then
-            !Maybe write something here
-            endif
-         end do
-
-         call cov365(t1,daytemp_min)
-         call cov365(t2,daytemp_max)
-         call cov365a(p1,dayprecip)
-
-         do i=1,days_per_year
-            daytemp(i)=0.5*(daytemp_min(i) + daytemp_max(i))
-         end do
-         !
-         !Daily cycles of C, N, H2O
-         !
-         !Initialize accumulators
-         total_rsp=0.0
-         avail_n=0.0
-         pet=0.0
-         aet=0.0
-         degday=0.0
-         freeze=0.0
-         growdays=0.0
-         drydays_upper=0.0
-         drydays_base=0.0
-         flooddays=0.0
-         litter_c_lev1=0.0
-         litter_n_lev1=0.0
-         litter_c_lev2=0.0
-         litter_n_lev2=0.0
-         outwater=0.0
-
-         site%soil%A0_c0=site%soil%A0_c0+site%soil%C_into_A0
-         site%soil%A0_n0=site%soil%A0_n0+site%soil%N_into_A0
-
-         do j=1,days_per_year
-            !
-            !Water in each Soil layer
-            !
-            call ex_rad(j,site%latitude,exrad,daylength,exradmx)
-
-            pot_ev_day=hargrea(daytemp_min(j),daytemp_max(j),daytemp(j),exrad)
-
-            call soil_water(site%soil,site%slope,site%leaf_area_ind,                &
-               site%leaf_area_w0,site%sigma,freeze,dayprecip(j),                  &
-               pot_ev_day,act_ev_day,                                             &
-               laiw0_ScaledByMax,laiw0_ScaledByMin,aow0_ScaledByMax,              &
-               aow0_ScaledByMin,sbw0_ScaledByMax,sbw0_ScaledByMin,                &
-               saw0_ScaledByFC,saw0_ScaledByWP)
-
-            !C and N in Soil and Available N for tree growth
-            !
-            call soil_decomp(site%soil,litter_c_lev1,litter_c_lev2,litter_n_lev1,   &
-                           litter_n_lev2,daytemp(j),dayprecip(j),aow0_ScaledByMax, &
-                           saw0_ScaledByFC,sbw0_ScaledByMax,n_avail,C_resp)
-
-            outwater=outwater+site%soil%runoff
-            avail_n=max(n_avail,0.0)+avail_n
-            pet=pot_ev_day+pet
-            aet=act_ev_day+aet
-            total_rsp=total_rsp+C_resp
-
-            !computing degday, growing season length(growdays),dry day, &flood days
-            !Origional codes below are modified by B.Wang on Aug.21st, 2017
-            
-            if (daytemp(j) .ge. min_grow_temp) then
-            degday=degday+(daytemp(j)- min_grow_temp)
-            growdays=growdays+1.0
-            if ((saw0_ScaledByFC .lt. max_dry_parm)  .and.                       &
-                  (sbw0_ScaledByMin .lt. max_dry_parm) .and.                       &
-                  (sbw0_ScaledByMax .lt. max_dry_parm)) then
-               drydays_upper=drydays_upper+1.0
-            endif
-            if (saw0_ScaledByWP.lt. max_dry_parm) then
-               drydays_base=drydays_base+1.0
-            end if
-               ! POSSIBLE BUG -- yxd3 never set
-            if (aow0_ScaledByMin .gt. min_flood_parm) then
-               flooddays = flooddays + kron(yxd3)
-            endif
-            end if
-
-         end do
-
-         !print*, 'degday',degday
-
-
-         if ( growdays .eq. 0 ) then
-            drydays_upper=0
-            drydays_base=0
-            flooddays=0
+            tmptmin(i) = site%tmin(i)   + accumulated_tmin
+            tmptmax(i) = site%tmax(i)   + accumulated_tmax
+            tmpprec(i) = site%precip(i) + accumulated_precip(i)
          else
-            tmp=max(min(rain/pet,1.0),min(aet/pet,1.0))
-            drydays_upper=min(drydays_upper/growdays,1.0-tmp)
-            drydays_base=drydays_base/growdays
-            flooddays=flooddays/growdays
+            tmptmin(i) = site%tmin(i) 
+            tmptmax(i) = site%tmax(i) 
+            tmpprec(i) = site%precip(i) 
          endif
 
-         do k=1,num_species
-            call temp_rsp(site%species(k),degday)
-            call drought_rsp(site%species(k),drydays_upper,drydays_base)
-            call flood_rsp(site%species(k),flooddays)
-         end do
+         ! Climate fluctuations
+         temp_f=clim_nrand(0.0,1.0)
+         prcp_f=clim_nrand(0.0,1.0)
+         temp_f=max(-1.0,min(temp_f,1.0))
 
-         site%soil%avail_N=avail_n+rain_n
-         site%soil%total_C_rsp=total_rsp
-         site%soil%runoff=outwater
+         !--------------------------------------------------------------
+         !-!!!!!!!!!!!!!!!Note this part-!!!!!!!!!!!!!!!!!!!!!1
+         !--------------------------------------------------------------
+         ! KAH Both these can't operate. The second one overwrites the first one.
+         ! This doesn't add on fluctuations that are scaled to the std.
+         t1(i)=tmptmin(i)+temp_f*site%tmin_std(i)
+         t2(i)=tmptmax(i)+temp_f*site%tmax_std(i)
+         !t1(i)=tmptmin(i)+temp_f
+         !t2(i)=tmptmax(i)+temp_f
 
-         site%pot_evap_day=pet
-         site%act_evap_day=aet
-         site%rain=rain
-         site%grow_days=growdays
-         site%deg_days=degday
-         site%flood_days=flooddays
-         site%dry_days_upper_layer=drydays_upper
-         site%dry_days_base_layer=drydays_base
+         !forest cover can increase rainfall by maximum 15%
+         prcp_f=max(-0.5,min(prcp_f,0.5))
+
+         p1(i)=max(tmpprec(i)+prcp_f*site%precip_std(i),0.0)
+         rain  =rain  +p1(i)
+         rain_n=rain_n+p1(i)*prcp_n
+
+         if ( with_clim_change ) then
+         !Maybe write something here
+         endif
+      end do
+
+      call cov365(t1,daytemp_min)
+      call cov365(t2,daytemp_max)
+      call cov365a(p1,dayprecip)
+
+      do i=1,days_per_year
+         daytemp(i)=0.5*(daytemp_min(i) + daytemp_max(i))
+      end do
+      !
+      !Daily cycles of C, N, H2O
+      !
+      !Initialize accumulators
+      total_rsp=0.0
+      avail_n=0.0
+      pet=0.0
+      aet=0.0
+      degday=0.0
+      freeze=0.0
+      growdays=0.0
+      drydays_upper=0.0
+      drydays_base=0.0
+      flooddays=0.0
+      litter_c_lev1=0.0
+      litter_n_lev1=0.0
+      litter_c_lev2=0.0
+      litter_n_lev2=0.0
+      outwater=0.0
+
+      site%soil%A0_c0=site%soil%A0_c0+site%soil%C_into_A0
+      site%soil%A0_n0=site%soil%A0_n0+site%soil%N_into_A0
+
+      do j=1,days_per_year
+         !
+         !Water in each Soil layer
+         !
+         call ex_rad(j,site%latitude,exrad,daylength,exradmx)
+
+         pot_ev_day=hargrea(daytemp_min(j),daytemp_max(j),daytemp(j),exrad)
+
+         call soil_water(site%soil,site%slope,site%leaf_area_ind,              &
+            site%leaf_area_w0,site%sigma,freeze,dayprecip(j),                  &
+            pot_ev_day,act_ev_day,                                             &
+            laiw0_ScaledByMax,laiw0_ScaledByMin,aow0_ScaledByMax,              &
+            aow0_ScaledByMin,sbw0_ScaledByMax,sbw0_ScaledByMin,                &
+            saw0_ScaledByFC,saw0_ScaledByWP)
+
+         !C and N in Soil and Available N for tree growth
+         !
+         call soil_decomp(site%soil,litter_c_lev1,litter_c_lev2,litter_n_lev1,  &
+                        litter_n_lev2,daytemp(j),dayprecip(j),aow0_ScaledByMax, &
+                        saw0_ScaledByFC,sbw0_ScaledByMax,n_avail,C_resp)
+
+         outwater = outwater+site%soil%runoff
+         avail_n = max(n_avail,0.0)+avail_n
+         pet = pot_ev_day+pet
+         aet = act_ev_day+aet
+         total_rsp = total_rsp+C_resp
+
+         !computing degday, growing season length(growdays),dry day, &flood days
+         !Origional code below are modified by B.Wang on Aug.21st, 2017
+         
+         if (daytemp(j) .ge. min_grow_temp) then
+           degday=degday+(daytemp(j)- min_grow_temp)
+           growdays=growdays+1.0
+           if ((saw0_ScaledByFC .lt. max_dry_parm)  .and.                     &
+               (sbw0_ScaledByMin .lt. max_dry_parm) .and.                     &
+               (sbw0_ScaledByMax .lt. max_dry_parm)) then
+              drydays_upper=drydays_upper+1.0
+           endif
+           if (saw0_ScaledByWP.lt. max_dry_parm) then
+             drydays_base=drydays_base+1.0
+           endif
+            ! POSSIBLE BUG -- yxd3 never set
+           if (aow0_ScaledByMin .gt. min_flood_parm) then
+              flooddays = flooddays + kron(yxd3)
+           endif
+         endif
+
+      end do
+
+      !print*, 'degday',degday
+
+
+      if ( growdays .eq. 0 ) then
+         drydays_upper=0
+         drydays_base=0
+         flooddays=0
+      else
+         tmp=max(min(rain/pet,1.0),min(aet/pet,1.0))
+         drydays_upper=min(drydays_upper/growdays,1.0-tmp)
+         drydays_base=drydays_base/growdays
+         flooddays=flooddays/growdays
+      endif
+
+      do k=1,num_species
+         call temp_rsp(site%species(k),degday)
+         call drought_rsp(site%species(k),drydays_upper,drydays_base)
+         call flood_rsp(site%species(k),flooddays)
+      end do
+
+      site%soil%avail_N=avail_n+rain_n
+      site%soil%total_C_rsp=total_rsp
+      site%soil%runoff=outwater
+
+      site%pot_evap_day=pet
+      site%act_evap_day=aet
+      site%rain=rain
+      site%grow_days=growdays
+      site%deg_days=degday
+      site%flood_days=flooddays
+      site%dry_days_upper_layer=drydays_upper
+      site%dry_days_base_layer=drydays_base
 
    end subroutine BioGeoClimate
 
@@ -617,11 +617,11 @@ contains
 
       num_species=size(site%species)
 
-      leaf_b=1.0+con_leaf_ratio
-      biomc=0.0
-      biomn=0.0
+      leaf_b= 1.0 + con_leaf_ratio
+      biomc = 0.0
+      biomn = 0.0
       !*****
-      NPP_loss = 0.0
+      NPP_loss  = 0.0
       NPPn_loss = 0.0
 
       do ip=1,site%numplots
@@ -640,10 +640,10 @@ contains
                   do is=1,num_species
 
                      call fire_rsp(site%species(is),1)
-                     site%plots(ip)%seedling(is)=(site%species(is)%invader*10.0+ &
-                                                site%species(is)%sprout_num*   &
-                                                site%plots(ip)%avail_spec(is))*&
-                                                site%species(is)%fc_fire
+                     site%plots(ip)%seedling(is)=(site%species(is)%invader*10.0 +  &
+                                                  site%species(is)%sprout_num *    &
+                                                  site%plots(ip)%avail_spec(is)) * &
+                                                  site%species(is)%fc_fire
                   end do
 
                   site%plots(ip)%wind=0
@@ -654,8 +654,8 @@ contains
 
                   do is=1,num_species
                      site%plots(ip)%seedling(is)=site%species(is)%invader+       &
-                                    site%plots(ip)%seedling(is)+                &
-                                    site%species(is)%sprout_num*                &
+                                    site%plots(ip)%seedling(is)+                 &
+                                    site%species(is)%sprout_num*                 &
                                     site%plots(ip)%avail_spec(is)
                   end do
 
@@ -687,12 +687,12 @@ contains
 
                end do
 
-               site%soil%C_into_A0=site%soil%C_into_A0+ zc
-               site%soil%N_into_A0=site%soil%N_into_A0+ zn
+               site%soil%C_into_A0 = site%soil%C_into_A0 + zc
+               site%soil%N_into_A0 = site%soil%N_into_A0 + zn
                biomc = zc + biomc
                biomn = zn + biomn
                !******
-               NPP_loss = NPP_loss + zc
+               NPP_loss  = NPP_loss  + zc
                NPPn_loss = NPPn_loss + zn
                
                site%plots(ip)%seedling_number = 1.0
@@ -734,17 +734,17 @@ contains
                                     site%plots(ip)%trees(it))
 
                      if (site%species(k)%conifer) then
-                        site%soil%C_into_A0=leaf_bm*(leaf_b-1.0)+                &
+                        site%soil%C_into_A0 = leaf_bm*(leaf_b-1.0)+                &
                                                             site%soil%C_into_A0
-                        site%soil%N_into_A0=site%soil%N_into_A0+                 &
+                        site%soil%N_into_A0 = site%soil%N_into_A0+                 &
                                                 leaf_bm*(leaf_b-1.0)/con_leaf_c_n
                         !!!!!!!
                         NPP_loss  = NPP_loss + leaf_bm*(leaf_b-1.0)
                         NPPn_loss = NPPn_loss+ leaf_bm*(leaf_b-1.0)/con_leaf_c_n
                         
                      else
-                        site%soil%C_into_A0=leaf_bm+site%soil%C_into_A0
-                        site%soil%N_into_A0=site%soil%N_into_A0+                 &
+                        site%soil%C_into_A0 = leaf_bm+site%soil%C_into_A0
+                        site%soil%N_into_A0 = site%soil%N_into_A0+                 &
                                                             leaf_bm/dec_leaf_c_n
                         !!!!!
                         NPP_loss  = NPP_loss + leaf_bm
@@ -757,9 +757,9 @@ contains
                      bmc=site%plots(ip)%trees(it)%biomC
 
                      if (site%species(k)%conifer) then 
-                        site%soil%C_into_A0=site%soil%C_into_A0+bmc+             &
+                        site%soil%C_into_A0 = site%soil%C_into_A0+bmc+             &
                                                             leaf_bm*leaf_b
-                        site%soil%N_into_A0=site%soil%N_into_A0+bmc/stem_c_n +   &
+                        site%soil%N_into_A0 = site%soil%N_into_A0+bmc/stem_c_n +   &
                                                 leaf_bm/con_leaf_c_n*leaf_b
                         !!!!!!!
                         NPP_loss  = NPP_loss + leaf_bm*(leaf_b)+bmc
@@ -769,9 +769,9 @@ contains
                         site%soil%C_into_A0=site%soil%C_into_A0+bmc+leaf_bm
                         site%soil%N_into_A0=site%soil%N_into_A0+bmc/stem_c_n+    &
                                                          leaf_bm/dec_leaf_c_n
-                     !!!!!!!!!!!!!                                  
-                     NPP_loss  = NPP_loss + bmc+leaf_bm 
-                     NPPn_loss = NPPn_loss + bmc/stem_c_n + leaf_bm/dec_leaf_c_n 
+                        !!!!!!!!!!!!!                                  
+                        NPP_loss  = NPP_loss + bmc+leaf_bm 
+                        NPPn_loss = NPPn_loss + bmc/stem_c_n + leaf_bm/dec_leaf_c_n 
                                                       
                      end if
 
@@ -787,11 +787,10 @@ contains
 
       end do                     ! end plot loop
 
-      uconvert=hec_to_m2/plotsize/float(site%numplots)
+      uconvert = hec_to_m2/plotsize/float(site%numplots)
 
-      site%soil%biomC=site%soil%biomC-biomc*uconvert
-      site%soil%biomN=site%soil%biomN-biomn*uconvert
-      !!!multiplying unconvert
+      site%soil%biomC = site%soil%biomC-biomc*uconvert
+      site%soil%biomN = site%soil%biomN-biomn*uconvert
       site%soil%net_prim_prodC = site%soil%net_prim_prodC - NPP_loss*uconvert
       !site%soil%net_prim_prodN = site%soil%net_prim_prodN - NPPn_loss*uconvert
 

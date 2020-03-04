@@ -46,6 +46,7 @@ contains
       endif
 
       call random_number(rnd)
+
       urand = lower+(upper-lower)*rnd
 
       return
@@ -80,20 +81,21 @@ contains
 
       if ( present(seed) ) then
          iseed=int(seed)
-         x1=urand(-1.0,1.0,seed)
-         x2=urand(-1.0,1.0,seed)
+         x1 = urand(-1.0,1.0,seed)
+         x2 = urand(-1.0,1.0,seed)
       else
-         x1=urand(-1.0,1.0)
-         x2=urand(-1.0,1.0)
+         x1 = urand(-1.0,1.0)
+         x2 = urand(-1.0,1.0)
       endif
+
       w = x1**2 + x2**2
       if ( w .eq. 0.0 .or. w .gt. 1.0 ) go to 1
-
       w = sqrt( (-2.0 * log( w ) ) / w )
       y1 = x1*w
       y2 = x2*w
+
       ! Pick one, adjust its mean and std
-      nrand = y1*st+mn
+      nrand = y1*st + mn
 
       return
    end function nrand
@@ -330,12 +332,12 @@ contains
       integer                             :: isize
       integer, dimension(:), allocatable  :: iseed
 
-         call random_seed(size=isize)
-         if (.not. allocated(iseed)) allocate(iseed(isize))
+      call random_seed(size=isize)
+      if (.not. allocated(iseed)) allocate(iseed(isize))
 
-         iseed=seed
-         call random_seed(get=iseed)
-         seed=iseed(1)
+      iseed=seed
+      call random_seed(get=iseed)
+      seed=iseed(1)
 
    end subroutine get_random_seed
 
@@ -346,11 +348,11 @@ contains
       integer                             :: isize
       integer, dimension(:), allocatable  :: iseed
 
-         call random_seed(size=isize)
-         if (.not. allocated(iseed)) allocate(iseed(isize))
+      call random_seed(size=isize)
+      if (.not. allocated(iseed)) allocate(iseed(isize))
 
-         iseed=seed
-         call random_seed(put=iseed)
+      iseed=seed
+      call random_seed(put=iseed)
 
    end subroutine set_random_seed
 

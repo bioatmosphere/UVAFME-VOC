@@ -16,35 +16,35 @@ module Site
   !-----------------------------------------------------------------------------
 
   type SiteData
-     type(SoilData)                             :: soil
-     type(PlotData),   dimension(:),allocatable :: plots
-     type(SpeciesData),dimension(:),allocatable :: species
-     real,             dimension(:),allocatable :: fc_flood
-     real,             dimension(:),allocatable :: fc_drought
-     real,             dimension(:),allocatable :: fc_degday
-     character(len=MAX_NLEN)                    :: region
-     character(len=MAX_NLEN)                    :: site_name
-     integer                                    :: site_id
-     integer                                    :: numplots
-     real                                       :: site_wmo
-     real                                       :: latitude,longitude
-     real                                       :: elevation,altitude,slope
-     real                                       :: leaf_area_ind,leaf_area_w0
-     real                                       :: sigma
-     real, dimension(NTEMPS)                    :: temp_lapse_r, precip_lapse_r
-     real, dimension(NTEMPS)                    :: tmin, tmax, precip
-     real, dimension(NTEMPS)                    :: tmin_std, tmax_std 
-     real, dimension(NTEMPS)                    :: precip_std
-     real                                       :: rain
-     real                                       :: pot_evap_day
-     real                                       :: act_evap_day
-     real                                       :: grow_days
-     real                                       :: deg_days
-     real                                       :: flood_days
-     real                                       :: dry_days_upper_layer
-     real                                       :: dry_days_base_layer
-     real                                       :: freeze
-     real                                       :: fire_prob, wind_prob
+      type(SoilData)                             :: soil
+      type(PlotData),   dimension(:),allocatable :: plots
+      type(SpeciesData),dimension(:),allocatable :: species
+      real,             dimension(:),allocatable :: fc_flood
+      real,             dimension(:),allocatable :: fc_drought
+      real,             dimension(:),allocatable :: fc_degday
+      character(len=MAX_NLEN)                    :: region
+      character(len=MAX_NLEN)                    :: site_name
+      integer                                    :: site_id
+      integer                                    :: numplots
+      real                                       :: site_wmo
+      real                                       :: latitude,longitude
+      real                                       :: elevation,altitude,slope
+      real                                       :: leaf_area_ind,leaf_area_w0
+      real                                       :: sigma
+      real, dimension(NTEMPS)                    :: temp_lapse_r, precip_lapse_r
+      real, dimension(NTEMPS)                    :: tmin, tmax, precip
+      real, dimension(NTEMPS)                    :: tmin_std, tmax_std 
+      real, dimension(NTEMPS)                    :: precip_std
+      real                                       :: rain
+      real                                       :: pot_evap_day
+      real                                       :: act_evap_day
+      real                                       :: grow_days
+      real                                       :: deg_days
+      real                                       :: flood_days
+      real                                       :: dry_days_upper_layer
+      real                                       :: dry_days_base_layer
+      real                                       :: freeze
+      real                                       :: fire_prob, wind_prob
   end type SiteData
 
 
@@ -55,10 +55,10 @@ contains
   !-------------------------------------------------------------------------------
 
   subroutine initialize_site(self,siteid,sitename,siteregion,lat,long,wmo,     &
-       elevation,slope,Afc,A_perm_wp,lai,base_h,                               &
-       lai_w0,A0_w0,A_w0,sbase_w0,fire_prob,                                   &
-       wind_prob,A0_c0,A0_n0,A_c0,A_n0,sbase_c0,                               &
-       sbase_n0,sigma,temp_lapse, prcp_lapse)
+        elevation,slope,Afc,A_perm_wp,lai,base_h,                              &
+        lai_w0,A0_w0,A_w0,sbase_w0,fire_prob,                                  &
+        wind_prob,A0_c0,A0_n0,A_c0,A_n0,sbase_c0,                              &
+        sbase_n0,sigma,temp_lapse, prcp_lapse)
 
     type(SiteData),  intent(inout) :: self
     integer                        :: siteid
@@ -77,36 +77,35 @@ contains
     !  Initialize properties from the site file
     !  Other properties will be added by other routines
 
-    self%site_id   = siteid
-    self%site_name = sitename
-    self%region    = siteregion
+    self%site_id          = siteid
+    self%site_name        = sitename
+    self%region           = siteregion
+    self%latitude         = lat
+    self%longitude        = long
+    self%site_wmo         = wmo
+    self%elevation        = elevation
+    self%slope            = slope
+    self%sigma            = sigma
+    self%temp_lapse_r     = temp_lapse
+    self%precip_lapse_r   = prcp_lapse
+    self%leaf_area_w0     = lai_w0
+    self%leaf_area_ind    = lai
+    self%fire_prob        = fire_prob
+    self%wind_prob        = wind_prob
 
-    self%latitude  =lat
-    self%longitude =long
-    self%site_wmo  =wmo
-    self%elevation =elevation
-    self%slope=slope
-
-    self%soil%A_field_cap=Afc
-    self%soil%A_perm_wp=A_perm_wp
-    self%leaf_area_ind=lai
-    self%soil%base_h=base_h
-    self%leaf_area_w0=lai_w0
-    self%soil%A0_w0=A0_w0
-    self%soil%A_w0=A_w0
-    self%soil%BL_w0=sbase_w0
-    self%fire_prob=fire_prob
-    self%wind_prob=wind_prob
-    self%soil%A0_c0=A0_c0
-    self%soil%A0_n0=A0_n0
-    self%soil%A_c0=A_c0
-    self%soil%A_n0=A_n0
-    self%soil%BL_c0=sbase_c0
-    self%soil%BL_n0=sbase_n0
-    self%sigma=sigma
-    self%temp_lapse_r=temp_lapse
-    self%precip_lapse_r=prcp_lapse
-
+    self%soil%A_field_cap = Afc
+    self%soil%A_perm_wp   = A_perm_wp
+    self%soil%base_h      = base_h
+    self%soil%A0_w0       = A0_w0
+    self%soil%A_w0        = A_w0
+    self%soil%BL_w0       = sbase_w0
+    self%soil%A0_c0       = A0_c0
+    self%soil%A0_n0       = A0_n0
+    self%soil%A_c0        = A_c0
+    self%soil%A_n0        = A_n0
+    self%soil%BL_c0       = sbase_c0
+    self%soil%BL_n0       = sbase_n0
+    
     call adjustForAltitude(self)
 
   end subroutine initialize_site
@@ -116,9 +115,9 @@ contains
     type(SiteData),          intent(inout):: self
     real, dimension(NTEMPS), intent(in)   :: tmin,tmax,prcp
 
-    self%tmin    =tmin
-    self%tmax    =tmax
-    self%precip  =prcp*mm_to_cm
+    self%tmin    = tmin
+    self%tmax    = tmax
+    self%precip  = prcp*mm_to_cm
 
   end subroutine attach_climate
 
@@ -127,9 +126,9 @@ contains
     type(SiteData),          intent(inout):: self
     real, dimension(NTEMPS), intent(in)   :: tmin_std,tmax_std,prcp_std
 
-    self%tmin_std   =tmin_std
-    self%tmax_std   =tmax_std
-    self%precip_std =prcp_std*mm_to_cm
+    self%tmin_std   = tmin_std
+    self%tmax_std   = tmax_std
+    self%precip_std = prcp_std*mm_to_cm
 
   end subroutine attach_climate_std
 

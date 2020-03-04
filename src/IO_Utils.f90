@@ -24,8 +24,8 @@ contains
     namelist /filenames/input_directory,output_directory,                      &
                         climate_directory,site_directory,sitelist_directory
 
- ! This reads the names of the directories for the input files. If the filelist 
- ! file is not present it sets it them to default values.
+    ! This reads the names of the directories for the input files. If the filelist 
+    ! file is not present it sets them to default values.
 
     ! Initialize to default values
     input_directory='input_data'
@@ -49,11 +49,11 @@ contains
        close(nunit)
     endif
 
-    inputdir=trim(input_directory)
-    outputdir=trim(output_directory)
-    climatedir=trim(climate_directory)
-    sitedir=trim(site_directory)
-    slistdir=trim(sitelist_directory)
+    inputdir   = trim(input_directory)
+    outputdir  = trim(output_directory)
+    climatedir = trim(climate_directory)
+    sitedir    = trim(site_directory)
+    slistdir   = trim(sitelist_directory)
 
   end subroutine read_file_list
 

@@ -33,7 +33,7 @@ Navigate to the src/ folder and run the following commands from a shell:
 ```shell
 Make UVAFME
 mv UVAFME.exe ..
-./UVAFME.exe file_list
+./UVAFME.exe file_list.txt
 ```
 
 ### Publications arising from this model
