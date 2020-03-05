@@ -9,7 +9,9 @@
 
 # UVAFME-VOC
 
-UVAFME-VOC is an Individual-based forest volatile organic compounds emission model that is developed from the state-of-the-art forest gap model--University of Virginia Forest Model Enhanced (UVAFME). **Though with an VOC component, this model can TOTALLY be treated and applied as an individual-based forest gap model**, as the VOC component is literally added on top of UVAFME without changing any of it. Please check out the corresponding manuscript by Wang, Shugart, and Lerdau in [**Ecological Modelling**](https://doi.org/10.1016/j.ecolmodel.2017.02.006) for details.
+UVAFME-VOC is an Individual-based forest volatile organic compounds emission model that is developed from the state-of-the-art forest gap model--University of Virginia Forest Model Enhanced (UVAFME). **Though with an VOC component, this model can TOTALLY be treated and applied as an individual-based forest gap model**, as the VOC component is literally added on top of UVAFME without changing any part of it. 
+
+Please check out the  manuscript by Wang, Shugart, and Lerdau in [**Ecological Modelling**](https://doi.org/10.1016/j.ecolmodel.2017.02.006) for details.
 
 UVAFME-VOC (v1.0) is written in Fortran 2003 (a Python-based version that would make it more widely accessible is under conceiving). Any questions related to the explicit VOC simulation in particular and the individual-based forest model in general can  be directed to B. Wang @ wbwenwen@gmail.com or bw8my@virginia.edu
 
