@@ -37,8 +37,9 @@ git clone https://github.com/bioatmosphere/UVAFME-VOC
 Navigate to the src/ folder and run the following commands from a shell:
 
 ```shell
+# compile and move the successfully compiled .exe file out of /src above to its parent folder
+# NOTE: a compiler (e.g. intel) is required
 make UVAFME.exe
-# move the successfully compiled .exe file outside of /src to its parent folder
 mv UVAFME.exe ..
 # run the program
 ./UVAFME.exe file_list.txt
