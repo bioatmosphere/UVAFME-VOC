@@ -24,21 +24,23 @@ git clone https://github.com/bioatmosphere/UVAFME-VOC
 ```
 **Understand the directory structure**:
 
-- **src/**: all source code in .f90 and a Makefile
+1. **src/**: 24 in total including all source code (in .f90/.F90) and a Makefile.
 
-- **input_data/**: all input files needed
+2. **input_data/**: all input files needed
 
-- **output_data/**: where outputs reside
+3. **output_data/**: where outputs reside
 
-- **file_list.txt**: .txt file lising all files needed
+4. **file_list.txt**: a .txt file lising directories of all files needed
 
 **Compile and Run the Program**
 
 Navigate to the src/ folder and run the following commands from a shell:
 
 ```shell
-Make UVAFME
+make UVAFME.exe
+# move the successfully compiled .exe file outside of /src to its parent folder
 mv UVAFME.exe ..
+# run the program
 ./UVAFME.exe file_list.txt
 ```
 
