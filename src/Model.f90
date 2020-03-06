@@ -187,11 +187,11 @@ contains
 
          !computing degday, growing season length(growdays),dry day, &flood days
          if (daytemp(j) .ge. min_grow_temp) then
-           degday=degday+(daytemp(j)- min_grow_temp)
-           growdays=growdays+1.0
+            degday=degday+(daytemp(j)- min_grow_temp)
+            growdays=growdays+1.0
          end if
-         if ((saw0_ScaledByFC .lt. max_dry_parm)  .and.                     &
-            (sbw0_ScaledByMin .lt. max_dry_parm) .and.                     &
+         if ((saw0_ScaledByFC .lt. max_dry_parm)  .and.                    &
+            (sbw0_ScaledByMin .lt. max_dry_parm)  .and.                     &
             (sbw0_ScaledByMax .lt. max_dry_parm)) then
             drydays_upper=drydays_upper+1.0
          endif
@@ -204,17 +204,16 @@ contains
          endif
 
       end do
-      !print*, 'degday',degday
 
       if ( growdays .eq. 0 ) then
          drydays_upper=0
          drydays_base=0
          flooddays=0
       else
-         tmp=max(min(rain/pet,1.0),min(aet/pet,1.0))
-         drydays_upper=min(drydays_upper/growdays,1.0-tmp)
-         drydays_base=drydays_base/growdays
-         flooddays=flooddays/growdays
+         tmp = max(min(rain/pet,1.0),min(aet/pet,1.0))
+         drydays_upper = min(drydays_upper/growdays,1.0-tmp)
+         drydays_base = drydays_base/growdays
+         flooddays = flooddays/growdays
       endif
 
       do k=1,num_species
@@ -223,18 +222,18 @@ contains
          call flood_rsp(site%species(k),flooddays)
       end do
 
-      site%soil%avail_N=avail_n+rain_n
-      site%soil%total_C_rsp=total_rsp
-      site%soil%runoff=outwater
+      site%soil%avail_N = avail_n+rain_n
+      site%soil%total_C_rsp = total_rsp
+      site%soil%runoff = outwater
 
-      site%pot_evap_day=pet
-      site%act_evap_day=aet
-      site%rain=rain
-      site%grow_days=growdays
-      site%deg_days=degday
-      site%flood_days=flooddays
-      site%dry_days_upper_layer=drydays_upper
-      site%dry_days_base_layer=drydays_base
+      site%pot_evap_day = pet
+      site%act_evap_day = aet
+      site%rain = rain
+      site%grow_days = growdays
+      site%deg_days = degday
+      site%flood_days = flooddays
+      site%dry_days_upper_layer = drydays_upper
+      site%dry_days_base_layer = drydays_base
 
    end subroutine BioGeoClimate
 
@@ -254,18 +253,19 @@ contains
       integer                                    :: i,ip,ih,is,it
       integer                                    :: k,jtmp
       !temporary for testing
-      real :: clsum=0.0, dlsum=0.0
+      !real :: clsum=0.0, dlsum=0.0
 
-      site%leaf_area_ind=0.0
-      num_species=size(site%species)
+      site%leaf_area_ind = 0.0
+      num_species = size(site%species)
 
       do ip=1,site%numplots
+
          ntrees=site%plots(ip)%numtrees
 
          if (ntrees .eq. 0) then
             site%plots(ip)%con_light=1.0
             site%plots(ip)%dec_light=1.0
-            site%plots(ip)%nutrient=1.0
+            site%plots(ip)%nutrient =1.0
 
          else
 
@@ -293,8 +293,8 @@ contains
                   end do
                else
                   do ih=int(canht),int(forht)
-                     lvd_c2(ih)=lvd_c2(ih)+lvd_adj*0.8
                      lvd_c1(ih)=lvd_c1(ih)+lvd_adj
+                     lvd_c2(ih)=lvd_c2(ih)+lvd_adj*0.8
                   end do
                end if
             end do
@@ -305,11 +305,12 @@ contains
                lvd_c4(maxheight-ih)=lvd_c4(maxheight-ih+1)+lvd_c2(maxheight-ih)
             end do
             do ih=1,maxheight-1
-               site%plots(ip)%con_light(ih)=exp(xt*lvd_c4(ih+1)/plotsize)
                site%plots(ip)%dec_light(ih)=exp(xt*lvd_c3(ih+1)/plotsize)
+               site%plots(ip)%con_light(ih)=exp(xt*lvd_c4(ih+1)/plotsize)
             end do
          end if
       end do
+
       site%leaf_area_ind=site%leaf_area_ind/float(site%numplots)/plotsize
 
    end subroutine Canopy
@@ -377,7 +378,7 @@ contains
                canht    =site%plots(ip)%trees(it)%canopy_ht
                forht(it)=site%plots(ip)%trees(it)%forska_ht
 
-               site%plots(ip)%avail_spec(k)=                                     &
+               site%plots(ip)%avail_spec(k)=                                   &
                   max(kron(diam(it)-site%species(k)%max_diam*growth_thresh),   &
                            site%plots(ip)%avail_spec(k))
 
@@ -795,320 +796,320 @@ contains
    end subroutine Mortality
 
 
-  subroutine Renewal(site)
-
-    type(SiteData),              intent(inout) :: site
-
-    real,    dimension(size(site%species))     :: regrowth
-    real,    dimension(size(site%species))     :: prob
-    real                                       :: net_prim_prod,N_used
-    real                                       :: leaf_b
-    real                                       :: growmax,grow_cap
-    real                                       :: probsum,q0
-    real                                       :: z,zz,avtt
-    real                                       :: uconvert
-    integer                                    :: num_species
-    integer                                    :: max_renew
-    integer                                    :: new
-    integer                                    :: ip,is,it,k
-    integer                                    :: nrenew,irenew
-
-    new=0
-    net_prim_prod=0.0
-    N_used=0.0
-    leaf_b=1.0+con_leaf_ratio
-    num_species=size(site%species)
-
-    if (site%soil%avail_N .gt. 0.0) then 
-
-       do ip=1,site%numplots
-
-          if ((site%plots(ip)%numtrees .ne. 0) .or.                            &
-             ((site%plots(ip)%wind .eq. 0) .and.                               &
-              (site%plots(ip)%fire .eq. 0)))                                   &
-             then
-
-             growmax=0.0
-
-             do is =1,num_species
-
-                grow_cap=site%species(is)%fc_degday*                           &
-                         site%species(is)%fc_drought*                          &
-                         site%species(is)%fc_flood*                            &
-                         site%plots(ip)%nutrient(is)
-
-                if (site%species(is)%conifer) then
-                  regrowth(is)=grow_cap*light_rsp(site%species(is),            &
-                                     site%plots(ip)%con_light(1))
-                else
-                  regrowth(is)=grow_cap*light_rsp(site%species(is),            &
-                                     site%plots(ip)%dec_light(1))
-                end if
-
-                growmax=max(growmax,regrowth(is))
-                if (regrowth(is).le. growth_thresh) regrowth(is)=0.0
-
-             end do
-
-             !Computing the max renew number
-             max_renew=min(int(plotsize*growmax)-                              &
-                            site%plots(ip)%numtrees,int(plotsize*0.5))
-
-             nrenew=min(max(max_renew,3),int(plotsize)-                        &
-                            site%plots(ip)%numtrees)
-
-             !Computing the seed bank size and seedling bank size (1/m^2)
-             if (site%plots(ip)%seedling_number .eq. 0.0) then
-
-                do is =1, num_species
-                   site%plots(ip)%seedbank(is) =                               &
-                                 site%plots(ip)%seedbank(is) +                 &
-                                 site%species(is)%invader +                    &
-                                 site%species(is)%seed_num*                    &
-                                 site%plots(ip)%avail_spec(is)+                &
-                                 site%species(is)%sprout_num*                  &
-                                 site%plots(ip)%avail_spec(is)
-
-                   if (regrowth(is) .ge. growth_thresh) then
-                      site%plots(ip)%seedling(is)=                             &
-                                         site%plots(ip)%seedling(is)+          &
-                                         site%plots(ip)%seedbank(is)
-                      site%plots(ip)%seedbank(is)=0.0
-                   else
-                      site%plots(ip)%seedbank(is)=                             &
-                                         site%plots(ip)%seedbank(is)*          &
-                                         site%species(is)%seed_surv
-                   endif
-                   call fire_rsp(site%species(is),site%plots(ip)%fire)
-                   site%plots(ip)%seedling(is)=                                &
-                                     (site%plots(ip)%seedling(is)+             &
-                                      site%species(is)%sprout_num*             &
-                                      site%plots(ip)%avail_spec(is))*          &
-                                      site%species(is)%fc_fire
-
-                   site%plots(ip)%seedling_number=                             &
-                                      max(kron(site%plots(ip)%seedling(is)),   &
-                                          site%plots(ip)%seedling_number)
-
-                   site%plots(ip)%seedling(is)=                                &
-                                      site%plots(ip)%seedling(is)*plotsize
-                end do
-
-                probsum=0.0
-
-                do is =1,num_species 
-                   prob(is)= site%plots(ip)%seedling(is)*regrowth(is)
-                   probsum = probsum+ prob(is)
-                end do
+   subroutine Renewal(site)
+
+      type(SiteData),              intent(inout) :: site
+
+      real,    dimension(size(site%species))     :: regrowth
+      real,    dimension(size(site%species))     :: prob
+      real                                       :: net_prim_prod,N_used
+      real                                       :: leaf_b
+      real                                       :: growmax,grow_cap
+      real                                       :: probsum,q0
+      real                                       :: z,zz,avtt
+      real                                       :: uconvert
+      integer                                    :: num_species
+      integer                                    :: max_renew
+      integer                                    :: new
+      integer                                    :: ip,is,it,k
+      integer                                    :: nrenew,irenew
+
+      new=0
+      net_prim_prod=0.0
+      N_used=0.0
+      leaf_b=1.0+con_leaf_ratio
+      num_species=size(site%species)
+
+      if (site%soil%avail_N .gt. 0.0) then 
+
+         do ip=1,site%numplots
+
+            if ((site%plots(ip)%numtrees .ne. 0) .or.                            &
+               ((site%plots(ip)%wind .eq. 0) .and.                               &
+               (site%plots(ip)%fire .eq. 0)))                                   &
+               then
+
+               growmax=0.0
+
+               do is =1,num_species
+
+                  grow_cap=site%species(is)%fc_degday*                           &
+                           site%species(is)%fc_drought*                          &
+                           site%species(is)%fc_flood*                            &
+                           site%plots(ip)%nutrient(is)
+
+                  if (site%species(is)%conifer) then
+                     regrowth(is)=grow_cap*light_rsp(site%species(is),            &
+                                       site%plots(ip)%con_light(1))
+                  else
+                     regrowth(is)=grow_cap*light_rsp(site%species(is),            &
+                                       site%plots(ip)%dec_light(1))
+                  end if
+
+                  growmax=max(growmax,regrowth(is))
+                  if (regrowth(is).le. growth_thresh) regrowth(is)=0.0
+
+               end do
+
+               !Computing the max renew number
+               max_renew=min(int(plotsize*growmax)-                              &
+                              site%plots(ip)%numtrees,int(plotsize*0.5))
+
+               nrenew=min(max(max_renew,3),int(plotsize)-                        &
+                              site%plots(ip)%numtrees)
+
+               !Computing the seed bank size and seedling bank size (1/m^2)
+               if (site%plots(ip)%seedling_number .eq. 0.0) then
+
+                  do is =1, num_species
+                     site%plots(ip)%seedbank(is) =                               &
+                                    site%plots(ip)%seedbank(is) +                 &
+                                    site%species(is)%invader +                    &
+                                    site%species(is)%seed_num*                    &
+                                    site%plots(ip)%avail_spec(is)+                &
+                                    site%species(is)%sprout_num*                  &
+                                    site%plots(ip)%avail_spec(is)
+
+                     if (regrowth(is) .ge. growth_thresh) then
+                        site%plots(ip)%seedling(is)=                             &
+                                          site%plots(ip)%seedling(is)+          &
+                                          site%plots(ip)%seedbank(is)
+                        site%plots(ip)%seedbank(is)=0.0
+                     else
+                        site%plots(ip)%seedbank(is)=                             &
+                                          site%plots(ip)%seedbank(is)*          &
+                                          site%species(is)%seed_surv
+                     endif
+                     call fire_rsp(site%species(is),site%plots(ip)%fire)
+                     site%plots(ip)%seedling(is)=                                &
+                                       (site%plots(ip)%seedling(is)+             &
+                                       site%species(is)%sprout_num*             &
+                                       site%plots(ip)%avail_spec(is))*          &
+                                       site%species(is)%fc_fire
+
+                     site%plots(ip)%seedling_number=                             &
+                                       max(kron(site%plots(ip)%seedling(is)),   &
+                                             site%plots(ip)%seedling_number)
+
+                     site%plots(ip)%seedling(is)=                                &
+                                       site%plots(ip)%seedling(is)*plotsize
+                  end do
+
+                  probsum=0.0
+
+                  do is =1,num_species 
+                     prob(is)= site%plots(ip)%seedling(is)*regrowth(is)
+                     probsum = probsum+ prob(is)
+                  end do
 
-             else
+               else
 
-                probsum=0.0
+                  probsum=0.0
 
-                do is =1,num_species 
-                   prob(is)=site%plots(ip)%seedling(is)*regrowth(is)
-                   probsum = probsum + prob(is)
-                end do
+                  do is =1,num_species 
+                     prob(is)=site%plots(ip)%seedling(is)*regrowth(is)
+                     probsum = probsum + prob(is)
+                  end do
 
-                do is=1,num_species
-                   site%plots(ip)%seedbank(is)=                                &
-                           site%plots(ip)%seedbank(is) +                       &
-                           site%species(is)%invader+                           &
-                           site%species(is)%seed_num*                          &
-                           site%plots(ip)%avail_spec(is)+                      &
-                           site%species(is)%sprout_num*                        &
-                           site%plots(ip)%avail_spec(is)
+                  do is=1,num_species
+                     site%plots(ip)%seedbank(is)=                                &
+                              site%plots(ip)%seedbank(is) +                       &
+                              site%species(is)%invader+                           &
+                              site%species(is)%seed_num*                          &
+                              site%plots(ip)%avail_spec(is)+                      &
+                              site%species(is)%sprout_num*                        &
+                              site%plots(ip)%avail_spec(is)
 
-                   if (regrowth(is) .ge. growth_min) then
-                      site%plots(ip)%seedling(is)=site%plots(ip)%seedling(is)+ &
-                                                  site%plots(ip)%seedbank(is)
-                      site%plots(ip)%seedbank(is)=0.0
+                     if (regrowth(is) .ge. growth_min) then
+                        site%plots(ip)%seedling(is)=site%plots(ip)%seedling(is)+ &
+                                                   site%plots(ip)%seedbank(is)
+                        site%plots(ip)%seedbank(is)=0.0
 
-                   else
-                      site%plots(ip)%seedbank(is)=                             &
-                            site%plots(ip)%seedbank(is)*                       &
-                            site%species(is)%seed_surv
-                   endif
+                     else
+                        site%plots(ip)%seedbank(is)=                             &
+                              site%plots(ip)%seedbank(is)*                       &
+                              site%species(is)%seed_surv
+                     endif
 
-                   call fire_rsp(site%species(is),site%plots(ip)%fire)
-                   site%plots(ip)%seedling(is)=                                &
-                           (site%plots(ip)%seedling(is) +                      &
-                            site%species(is)%sprout_num*                       &
-                            site%plots(ip)%avail_spec(is))*                    &
-                            site%species(is)%fc_fire
+                     call fire_rsp(site%species(is),site%plots(ip)%fire)
+                     site%plots(ip)%seedling(is)=                                &
+                              (site%plots(ip)%seedling(is) +                      &
+                              site%species(is)%sprout_num*                       &
+                              site%plots(ip)%avail_spec(is))*                    &
+                              site%species(is)%fc_fire
 
-                   site%plots(ip)%seedling(is)=                                &
-                            plotsize*site%plots(ip)%seedling(is)
+                     site%plots(ip)%seedling(is)=                                &
+                              plotsize*site%plots(ip)%seedling(is)
 
-                   site%plots(ip)%seedling_number=                             &
-                             max(kron(site%plots(ip)%seedling(is)),            &
-                                      site%plots(ip)%seedling_number)
-                end do
-             end if
-             !c		after disturbances
-          else
+                     site%plots(ip)%seedling_number=                             &
+                              max(kron(site%plots(ip)%seedling(is)),            &
+                                       site%plots(ip)%seedling_number)
+                  end do
+               end if
+               !c		after disturbances
+            else
 
-             if (site%plots(ip)%fire .eq. 1 .or.                               &
-                 site%plots(ip)%wind .eq. 1) then
+               if (site%plots(ip)%fire .eq. 1 .or.                               &
+                  site%plots(ip)%wind .eq. 1) then
 
-                probsum=0.0
+                  probsum=0.0
 
-                do is =1,num_species 
+                  do is =1,num_species 
 
-                   grow_cap = site%species(is)%fc_degday*                      &
-                              site%species(is)%fc_drought*                     &
-                              site%species(is)%fc_flood
+                     grow_cap = site%species(is)%fc_degday*                      &
+                                 site%species(is)%fc_drought*                     &
+                                 site%species(is)%fc_flood
 
-                   prob(is) = site%plots(ip)%seedling(is)*grow_cap
-                   probsum  = probsum+prob(is)
+                     prob(is) = site%plots(ip)%seedling(is)*grow_cap
+                     probsum  = probsum+prob(is)
 
-                   site%plots(ip)%seedling(is)=                                &
-                            site%plots(ip)%seedling(is)*plotsize
+                     site%plots(ip)%seedling(is)=                                &
+                              site%plots(ip)%seedling(is)*plotsize
 
-                   site%plots(ip)%seedling_number=                             &
-                            max(kron(site%plots(ip)%seedling(is)),             &
-                                     site%plots(ip)%seedling_number)
-                end do
+                     site%plots(ip)%seedling_number=                             &
+                              max(kron(site%plots(ip)%seedling(is)),             &
+                                       site%plots(ip)%seedling_number)
+                  end do
 
-                site%plots(ip)%fire=0
-                site%plots(ip)%wind=0
+                  site%plots(ip)%fire=0
+                  site%plots(ip)%wind=0
 
-             else
+               else
 
-                site%plots(ip)%fire=max(0,site%plots(ip)%fire-1)
-                site%plots(ip)%wind=max(0,site%plots(ip)%wind-1)
+                  site%plots(ip)%fire=max(0,site%plots(ip)%fire-1)
+                  site%plots(ip)%wind=max(0,site%plots(ip)%wind-1)
 
-             end if
-          end if
+               end if
+            end if
 
-          !After disturbances									
-          if (probsum.gt. epsilon(1.0)) then
+            !After disturbances									
+            if (probsum.gt. epsilon(1.0)) then
 
-             do is =1,num_species
-                prob(is)=prob(is)/probsum
-             end do
+               do is =1,num_species
+                  prob(is)=prob(is)/probsum
+               end do
 
-             do is=2,num_species
-                prob(is)=prob(is-1)+prob(is)
-             end do
+               do is=2,num_species
+                  prob(is)=prob(is-1)+prob(is)
+               end do
 
-          else
+            else
 
-             nrenew=0
+               nrenew=0
 
-          end if
+            end if
 
-          it=site%plots(ip)%numtrees
+            it=site%plots(ip)%numtrees
 
-          if (nrenew .ge. 1) then
+            if (nrenew .ge. 1) then
 
-             do irenew=1, nrenew
+               do irenew=1, nrenew
 
-                q0=urand()
-                is = 1
+                  q0=urand()
+                  is = 1
 
-                do while (q0 .gt. prob(is))
+                  do while (q0 .gt. prob(is))
 
-                   is = is + 1
-                   if (is .gt. num_species) then
-                      is=1+int(urand(0.0,real(num_species)))
-                      q0=urand()
-                   endif
+                     is = is + 1
+                     if (is .gt. num_species) then
+                        is=1+int(urand(0.0,real(num_species)))
+                        q0=urand()
+                     endif
 
-                end do
+                  end do
 
-                !Set new tree feature!
+                  !Set new tree feature!
 
-                new=new+1
-                site%plots(ip)%seedling(is)= &
-                                  site%plots(ip)%seedling(is)-1.0
-                it=it+1
-                call initialize_tree(site%plots(ip)%trees(it),                 &
-                                                   site%species(is),is)
+                  new=new+1
+                  site%plots(ip)%seedling(is)= &
+                                    site%plots(ip)%seedling(is)-1.0
+                  it=it+1
+                  call initialize_tree(site%plots(ip)%trees(it),                 &
+                                                      site%species(is),is)
 
-                k=is
+                  k=is
 
-                z=1.5 +nrand(0.0,1.0)
+                  z=1.5 +nrand(0.0,1.0)
 
-                if (z .ge. 2.5) z=2.5
-                if (z .le. 0.5) z=0.5
+                  if (z .ge. 2.5) z=2.5
+                  if (z .le. 0.5) z=0.5
 
-                site%plots(ip)%trees(it)%diam_bht=z
-                site%plots(ip)%trees(it)%canopy_ht=1.0
+                  site%plots(ip)%trees(it)%diam_bht=z
+                  site%plots(ip)%trees(it)%canopy_ht=1.0
 
-                call forska_height(site%plots(ip)%trees(it))
-                call stem_shape(site%plots(ip)%trees(it))
-                call biomass_c(site%plots(ip)%trees(it))
-                call biomass_n(site%plots(ip)%trees(it))
-                call leaf_biomass_c(site%plots(ip)%trees(it))
+                  call forska_height(site%plots(ip)%trees(it))
+                  call stem_shape(site%plots(ip)%trees(it))
+                  call biomass_c(site%plots(ip)%trees(it))
+                  call biomass_n(site%plots(ip)%trees(it))
+                  call leaf_biomass_c(site%plots(ip)%trees(it))
 
-                zz=lai_biomass_c(site%plots(ip)%trees(it))*                    &
-                                 site%species(k)%leafarea_c*2.0
+                  zz=lai_biomass_c(site%plots(ip)%trees(it))*                    &
+                                    site%species(k)%leafarea_c*2.0
 
-                if (site%species(is)%conifer) then 
+                  if (site%species(is)%conifer) then 
 
-                   net_prim_prod=net_prim_prod+zz*leaf_b+                      &
-                                  site%plots(ip)%trees(it)%biomC
+                     net_prim_prod=net_prim_prod+zz*leaf_b+                      &
+                                    site%plots(ip)%trees(it)%biomC
 
-                   N_used=N_used+zz/con_leaf_c_n+                              &
-                                  site%plots(ip)%trees(it)%biomN
+                     N_used=N_used+zz/con_leaf_c_n+                              &
+                                    site%plots(ip)%trees(it)%biomN
 
-                   site%soil%C_into_A0=site%soil%C_into_A0+zz*(leaf_b-1.0)
-                   site%soil%N_into_A0=site%soil%N_into_A0+                    &
-                                           zz*(leaf_b-1.0)/con_leaf_c_n
+                     site%soil%C_into_A0=site%soil%C_into_A0+zz*(leaf_b-1.0)
+                     site%soil%N_into_A0=site%soil%N_into_A0+                    &
+                                             zz*(leaf_b-1.0)/con_leaf_c_n
 
-                else
+                  else
 
-                   net_prim_prod=net_prim_prod+                                &
-                                  site%plots(ip)%trees(it)%biomC + zz
+                     net_prim_prod=net_prim_prod+                                &
+                                    site%plots(ip)%trees(it)%biomC + zz
 
-                   N_used=N_used+site%plots(ip)%trees(it)%biomN        &
-                                                             +zz/dec_leaf_c_n
+                     N_used=N_used+site%plots(ip)%trees(it)%biomN        &
+                                                               +zz/dec_leaf_c_n
 
-                   site%soil%C_into_A0=site%soil%C_into_A0+zz
-                   site%soil%N_into_A0=site%soil%N_into_A0+zz/dec_leaf_c_n
+                     site%soil%C_into_A0=site%soil%C_into_A0+zz
+                     site%soil%N_into_A0=site%soil%N_into_A0+zz/dec_leaf_c_n
 
-                end if
-             end do
-          end if
-          site%plots(ip)%numtrees=it
+                  end if
+               end do
+            end if
+            site%plots(ip)%numtrees=it
 
-          do is =1, num_species 
-             site%plots(ip)%seedling(is)=site%plots(ip)%seedling(is)*          &
-                                             site%species(is)%seedling_lg/&
-                                                                   plotsize
-          end do
+            do is =1, num_species 
+               site%plots(ip)%seedling(is)=site%plots(ip)%seedling(is)*          &
+                                                site%species(is)%seedling_lg/&
+                                                                     plotsize
+            end do
 
-          site%plots(ip)%fire=0
+            site%plots(ip)%fire=0
 
-       end do
+         end do
 
-    end if
+      end if
 
-    uconvert=hec_to_m2/plotsize/float(site%numplots)
-    N_used=N_used*uconvert
-    net_prim_prod=net_prim_prod*uconvert
-    avtt=site%soil%avail_N-N_used
-    if (avtt .gt. 0.0) then
-       site%soil%net_N_into_A0=avtt*min(site%soil%runoff/1000.0,0.1)
-       site%soil%A_n0=site%soil%A_n0+avtt-site%soil%net_N_into_A0
-    else
-       site%soil%A_n0=site%soil%A_n0+avtt
-       site%soil%net_N_into_A0=0.0
-    end if
+      uconvert=hec_to_m2/plotsize/float(site%numplots)
+      N_used=N_used*uconvert
+      net_prim_prod=net_prim_prod*uconvert
+      avtt=site%soil%avail_N-N_used
+      if (avtt .gt. 0.0) then
+         site%soil%net_N_into_A0=avtt*min(site%soil%runoff/1000.0,0.1)
+         site%soil%A_n0=site%soil%A_n0+avtt-site%soil%net_N_into_A0
+      else
+         site%soil%A_n0=site%soil%A_n0+avtt
+         site%soil%net_N_into_A0=0.0
+      end if
 
-    site%soil%A_n0=site%soil%A_n0-0.00002*site%soil%runoff
-    site%soil%A_c0=site%soil%A_c0-site%soil%net_N_into_A0*20.0
-    site%soil%BL_c0=site%soil%BL_c0+site%soil%net_N_into_A0*20.0
-    site%soil%BL_n0=site%soil%BL_n0+site%soil%net_N_into_A0
-    site%soil%C_into_A0=(site%soil%C_into_A0)*uconvert
-    site%soil%N_into_A0=(site%soil%N_into_A0)*uconvert
-    site%soil%N_used=N_used
+      site%soil%A_n0=site%soil%A_n0-0.00002*site%soil%runoff
+      site%soil%A_c0=site%soil%A_c0-site%soil%net_N_into_A0*20.0
+      site%soil%BL_c0=site%soil%BL_c0+site%soil%net_N_into_A0*20.0
+      site%soil%BL_n0=site%soil%BL_n0+site%soil%net_N_into_A0
+      site%soil%C_into_A0=(site%soil%C_into_A0)*uconvert
+      site%soil%N_into_A0=(site%soil%N_into_A0)*uconvert
+      site%soil%N_used=N_used
 
-    site%soil%net_prim_prodC=site%soil%net_prim_prodC+net_prim_prod
-    site%soil%net_prim_prodN=site%soil%net_prim_prodN+N_used
-    site%soil%new_growth=int(float(new)*uconvert)
+      site%soil%net_prim_prodC=site%soil%net_prim_prodC+net_prim_prod
+      site%soil%net_prim_prodN=site%soil%net_prim_prodN+N_used
+      site%soil%new_growth=int(float(new)*uconvert)
 
-  end subroutine Renewal
+   end subroutine Renewal
 
 end module Model
