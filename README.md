@@ -1,13 +1,11 @@
-
-
 ![Forest compostional dynamics](https://github.com/bioatmosphere/UVAFME-VOC/blob/master/figures/Fig_Forest_Succession_Dynamics.jpg)
+
+# UVAFME-VOC
 
 ![GitHub repo size](https://img.shields.io/github/repo-size/bioatmosphere/UVAFME-VOC)
 ![GitHub stars](https://img.shields.io/github/stars/bioatmosphere/UVAFME-VOC?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/bioatmosphere/UVAFME-VOC?style=social)
 ![Twitter Follow](https://img.shields.io/twitter/follow/bioatmo_sphere?style=social)
-
-# UVAFME-VOC
 
 UVAFME-VOC is an Individual-based forest volatile organic compounds emission model that is developed from the state-of-the-art forest gap model--University of Virginia Forest Model Enhanced (UVAFME). **Though with an VOC component, this model can TOTALLY be treated and applied as an individual-based forest gap model**, as the VOC component is literally added on top of UVAFME without changing any part of it. 
 
