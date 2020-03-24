@@ -54,3 +54,6 @@ mv UVAFME.exe ..
 Shugart, H. H., **Wang, B.**, Fischer, R., Ma, J., Fang, J., Yan, X., ... & Armstrong, A. H. (2018). [Gap models and their individual-based relatives in the assessment of the consequences of global change](https://doi.org/10.1088/1748-9326/aaaacc). **Environmental Research Letters**, 13, 033001.
 
 **Wang, B.**, Shugart, H.H. & Lerdau, M.T. (2019). [Complexities between plants and the atmosphere](https://doi.org/10.1038/s41561-019-0413-8). **Nature Geoscience** 12, 693–694 
+
+H. H. Shugart, Adrianna Foster, **Bin Wang**, Dan Druckenbrod, Jianyong Ma, Manuel Lerdau, Sassan Saatchi, Xi Yang & Xiaodong Yan. (2020).[Gap models across micro- to mega-scales of time and space: examples of Tansley’s ecosystem concept](https://doi.org/10.1186/s40663-020-00225-4). **Forest Ecosystems** 7, 14.
+
