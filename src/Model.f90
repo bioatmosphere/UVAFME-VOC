@@ -933,7 +933,7 @@ contains
 
                      call fire_rsp(site%species(is),site%plots(ip)%fire)
                      site%plots(ip)%seedling(is)=                                &
-                              (site%plots(ip)%seedling(is) +                      &
+                              (site%plots(ip)%seedling(is) +                     &
                               site%species(is)%sprout_num*                       &
                               site%plots(ip)%avail_spec(is))*                    &
                               site%species(is)%fc_fire
@@ -942,7 +942,7 @@ contains
                               plotsize*site%plots(ip)%seedling(is)
 
                      site%plots(ip)%seedling_number=                             &
-                              max(kron(site%plots(ip)%seedling(is)),            &
+                              max(kron(site%plots(ip)%seedling(is)),             &
                                        site%plots(ip)%seedling_number)
                   end do
                end if
