@@ -193,7 +193,7 @@ contains
       integer                        :: kt
 
       ! Light availability
-      real, dimension(5)            :: light_c1, light_c2, light_c3
+      real, dimension(5)             :: light_c1, light_c2, light_c3
       data light_c1 /1.01,1.04,1.11,1.24,1.49/
       data light_c2 /4.62,3.44,2.52,1.78,1.23/
       data light_c3 /0.05,0.06,0.07,0.08,0.09/
@@ -227,9 +227,9 @@ contains
       data  fert_c2 /3.600,2.771,1.789/
       data  fert_c3 /-1.994,-1.550,-1.014/
 
-         !This cannot be converted to a real "method" until it is resolved whether
-         ! the following is a bug.  As it is, it changes the avail_n as well as the
-         ! required nitrogen on each call.
+      !This cannot be converted to a real "method" until it is resolved whether
+      ! the following is a bug.  As it is, it changes the avail_n as well as the
+      ! required nitrogen on each call.
 
       !!!WARNING WARNING WARNING POSSIBLE MASSIVE BUG HERE
       nrc=4-nrc
