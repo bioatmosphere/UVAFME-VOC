@@ -57,3 +57,4 @@ Shugart, H. H., **Wang, B.**, Fischer, R., Ma, J., Fang, J., Yan, X., ... & Arms
 
 H. H. Shugart, Adrianna Foster, **Bin Wang**, Dan Druckenbrod, Jianyong Ma, Manuel Lerdau, Sassan Saatchi, Xi Yang & Xiaodong Yan. (2020).[Gap models across micro- to mega-scales of time and space: examples of Tansley’s ecosystem concept](https://doi.org/10.1186/s40663-020-00225-4). **Forest Ecosystems** 7, 14.
 
+ Zhang, H.; Shugart, H.H.; **Wang, B.**; Lerdau, M. [The Significance of Aggregation Methods in Functional Group Modeling](https://doi.org/10.3390/f12111560). **Forests** 2021, 12, 1560.  
